@@ -82,14 +82,14 @@ files = [
 
 [[package]]
 name = "monistode-binutils-shared"
-version = "0.1.7"
+version = "0.1.13"
 description = "A collection of tools shared among the monistode binutils."
 category = "main"
 optional = false
 python-versions = ">=3.11,<4.0"
 files = [
-    {file = "monistode_binutils_shared-0.1.7-py3-none-any.whl", hash = "sha256:f8c0a7e40e3ab39b8b0e33df62b513a7eb8731ccbe8cde3f597432e6d74117cc"},
-    {file = "monistode_binutils_shared-0.1.7.tar.gz", hash = "sha256:b57e367b612a8ff6157d41455b4be7cfb13dfa08d940ef97e5810a856e80835b"},
+    {file = "monistode_binutils_shared-0.1.13-py3-none-any.whl", hash = "sha256:0dcf623811049c16de17adf52b0367be61d25ce6da8d2ae75b8011959d25686a"},
+    {file = "monistode_binutils_shared-0.1.13.tar.gz", hash = "sha256:5af2c1dc9f982810dbcd0ef7e5a43fed3e36c4b563730a60135a36b9d4a25593"},
 ]
 
 [package.dependencies]
@@ -98,4 +98,4 @@ bitstruct = ">=8.18.0,<9.0.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "912d010e6a32f3e301f41a366eb0102c1922f67226110b3bb7e0dd769ef329c8"
+content-hash = "0d61949f8c79fd44b05729883ba8eff94ee9c13b63a55bb48ad284323067c837"
