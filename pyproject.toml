@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "monistode-linker"
-version = "0.1.4"
+version = "0.1.5"
 description = "A linker for the Monistode set of ISA's"
 authors = ["rizerphe <44440399+rizerphe@users.noreply.github.com>"]
 readme = "README.md"

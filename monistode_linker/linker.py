@@ -24,39 +24,6 @@ class PlacedSegment:
         """Get the symbols in the segment."""
         return self.segment.symbols(self.offset)
 
-    def get_data(self, data: ByteArray, at: int, bits: int) -> tuple[int, int]:
-        """Get data at a specific offset.
-
-        Args:
-            data: The data to get from.
-            at: The offset to get the data from.
-            bits: The number of bits to get.
-
-        Returns:
-            The extracted data and the number of bits lost.
-        """
-        n_bytes = -(-bits // data._byte)
-        lost_bits = n_bytes * data._byte - bits
-        extracted = 0
-        for byte_offset in range(n_bytes):
-            extracted <<= data._byte
-            extracted |= data[at + byte_offset]
-        return extracted, lost_bits
-
-    def set_data(self, data: ByteArray, at: int, bits: int, value: int) -> None:
-        """Set data at a specific offset.
-
-        Args:
-            data: The data to set.
-            at: The offset to set the data at.
-            bits: The number of bits to set (will be rounded up to the nearest byte).
-            value: The value to set the data to.
-        """
-        n_bytes = -(-bits // data._byte)
-        for byte_offset in range(n_bytes):
-            data[at + n_bytes - byte_offset - 1] = value & 0xFF
-            value >>= data._byte
-
     def get_relocation_target(
         self, relocation: SymbolRelocation, symbols: tuple[Symbol, ...]
     ) -> int:
@@ -93,22 +60,79 @@ class PlacedSegment:
 
     def with_relocations(self, targets: tuple[Symbol, ...]) -> ByteArray:
         """Get the segment with relocations applied."""
-        data: ByteArray = self.segment.data()
+        data: ByteArray | None = self.segment.data()
+        if data is None:
+            data = ByteArray(self.segment.byte_size, self.segment.size)
         for relocation in self.segment.relocations:
             relocation: SymbolRelocation
-            original, lost_bits = self.get_data(
-                data, relocation.offset, relocation.size
-            )
             target = self.get_relocation_target(relocation, targets)
-            new_address = target + original >> lost_bits
-            if new_address < 0:
-                new_address += 1 << relocation.size
-            new_address &= (1 << relocation.size) - 1
-            relocation_mask = ((1 << relocation.size) - 1) << lost_bits
-            new_address <<= lost_bits
-            new_address |= original & ~relocation_mask
-            self.set_data(data, relocation.offset, relocation.size, new_address)
+            address = self.get_data(
+                data, relocation.location.offset, relocation.offset, relocation.size
+            )
+            address += target
+            address &= (1 << relocation.size) - 1
+            self.set_data(
+                data,
+                address,
+                relocation.location.offset,
+                relocation.offset,
+                relocation.size,
+            )
         return data
+
+    def get_data(
+        self, data: ByteArray, offset: int, offset_bits: int, size: int
+    ) -> int:
+        """Get the data from the segment at a specific offset.
+
+        Args:
+            data: The data to get the data from.
+            offset: The offset to get the data from.
+            offset_bits: The offset, in bits, to get the data from.
+            size: The size of the data to get.
+
+        Returns:
+            The data.
+        """
+        n_bytes = -(-(offset_bits + size) // data._byte)
+        tail_bits = (n_bytes * data._byte) - (offset_bits + size)
+
+        result = 0
+        for i in range(n_bytes):
+            result <<= data._byte
+            result |= data[offset + i]
+
+        result >>= tail_bits
+        result &= (1 << size) - 1
+
+        return result
+
+    def set_data(
+        self, data: ByteArray, insert: int, offset: int, offset_bits: int, size: int
+    ) -> None:
+        """Set the data in the segment at a specific offset.
+
+        Args:
+            data: The data to set the data in.
+            insert: The data to insert.
+            offset: The offset to set the data in.
+            offset_bits: The offset, in bits, to set the data in.
+            size: The size of the data to set.
+        """
+        n_bytes = -(-(offset_bits + size) // data._byte)
+        tail_bits = (n_bytes * data._byte) - (offset_bits + size)
+
+        original_head = self.get_data(data, offset, 0, offset_bits)
+        original_tail = self.get_data(data, offset, offset_bits + size, tail_bits)
+
+        result = original_head << size
+        result |= insert
+        result <<= tail_bits
+        result |= original_tail
+
+        for i in range(n_bytes):
+            data[offset + n_bytes - i - 1] = result & ((1 << data._byte) - 1)
+            result >>= data._byte
 
     def asbinary(self, targets: tuple[Symbol, ...]) -> PlacedBinary:
         """Get the segment as a binary."""
