@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "monistode-linker"
-version = "0.1.5"
+version = "0.1.6"
 description = "A linker for the Monistode set of ISA's"
 authors = ["rizerphe <44440399+rizerphe@users.noreply.github.com>"]
 readme = "README.md"
@@ -17,5 +17,5 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-mstasdlinker = 'monistode_linker.cli:main'
-mstasdl = 'monistode_linker.cli:link'
+mstlinker = 'monistode_linker.cli:main'
+mstl = 'monistode_linker.cli:link'
