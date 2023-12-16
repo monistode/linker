@@ -262,7 +262,7 @@ class Linker:
         Returns:
             The formed symbols.
         """
-        symbols = []
+        symbols: list[Symbol] = []
         for segment in segments:
             symbols.extend(segment.symbols())
         return tuple(symbols)
@@ -276,14 +276,16 @@ class Linker:
         Returns:
             The entry point of the program.
         """
-        try:
-            return next(
-                symbol.location.offset
-                for symbol in symbols
-                if symbol.name == "_start" and symbol.location.section == "text"
-            )
-        except StopIteration:
+        entry_candidates = [
+            symbol.location.offset
+            for symbol in symbols
+            if symbol.name == "_start" and symbol.location.section == "text"
+        ]
+        if not entry_candidates:
             raise RuntimeError("No entry point found")
+        if len(entry_candidates) > 1:
+            raise RuntimeError("Multiple entry points found")
+        return entry_candidates[0]
 
     def merge_binaries(
         self, binaries: list[PlacedBinary], max_merge_distance: int
