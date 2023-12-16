@@ -37,21 +37,12 @@ class PlacedSegment:
             The relocation target, relative if necessary.
         """
         candidates = [
-            symbol
-            for symbol in symbols
-            if symbol.name == relocation.symbol.name
-            and symbol.location.section == relocation.symbol.section_name
+            symbol for symbol in symbols if symbol.name == relocation.symbol.name
         ]
         if len(candidates) == 0:
-            raise ValueError(
-                f"Could not find symbol {relocation.symbol.name} "
-                f"in section {relocation.symbol.section_name}"
-            )
+            raise ValueError(f"Could not find symbol {relocation.symbol.name}")
         if len(candidates) > 1:
-            raise ValueError(
-                f"Found multiple symbols {relocation.symbol.name} "
-                f"in section {relocation.symbol.section_name}"
-            )
+            raise ValueError(f"Found multiple symbols {relocation.symbol.name}")
         relative_to = (
             (self.offset + relocation.location.offset) if relocation.relative else 0
         )
