@@ -8,6 +8,7 @@ from monistode_binutils_shared import (
     ExecutableFile,
     HarvardExecutableFilePair,
     ObjectManager,
+    RawExecutableFile,
 )
 
 from .linker import Linker
@@ -37,9 +38,9 @@ def cli():
     default=False,
 )
 @click.option(
-    "--folder/--executable",
-    "-f",
-    help="Whether to use a folder or executable file.",
+    "--raw/--executable",
+    "-r",
+    help="Whether to use a raw file/folder or an executable file.",
     default=False,
 )
 @click.option(
@@ -52,20 +53,19 @@ def link(
     input: tuple[str, ...],
     output: str,
     harvard: bool,
-    folder: bool,
+    raw: bool,
     max_merge_distance: int,
 ) -> None:
     """Link the input files into the output file."""
     linker = Linker()
 
     executable: Executable
-    if folder:
-        if not harvard:
-            raise click.BadParameter(
-                "Cannot create non-harvard executable in folder.", param_hint="output"
-            )
-        os.makedirs(output, exist_ok=True)
-        executable = HarvardExecutableFilePair.from_folder(output)
+    if raw:
+        if harvard:
+            os.makedirs(output, exist_ok=True)
+            executable = HarvardExecutableFilePair.from_folder(output)
+        else:
+            executable = RawExecutableFile.from_file(output)
     elif os.path.exists(output):
         output_file = open(output, "rb+")
         output_file.write(bytes(ExecutableFile.empty()))
