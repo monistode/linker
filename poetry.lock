@@ -82,14 +82,14 @@ files = [
 
 [[package]]
 name = "monistode-binutils-shared"
-version = "0.1.16"
+version = "0.1.17"
 description = "A collection of tools shared among the monistode binutils."
 category = "main"
 optional = false
 python-versions = ">=3.11,<4.0"
 files = [
-    {file = "monistode_binutils_shared-0.1.16-py3-none-any.whl", hash = "sha256:b81c5fffc3519e6661698c7da483c6bd843f1c74f6e684abb07abe902add3943"},
-    {file = "monistode_binutils_shared-0.1.16.tar.gz", hash = "sha256:8fe6e4e09ddb041bdc956d21b062a8618f67d3d43c6f768f90cc6e2855c18717"},
+    {file = "monistode_binutils_shared-0.1.17-py3-none-any.whl", hash = "sha256:04fc427fb82a900f30b1ac91d8b07280b8b9d5a0504fb017cecc845fe8ae6571"},
+    {file = "monistode_binutils_shared-0.1.17.tar.gz", hash = "sha256:fe8409d7e7258d9bd0773a2e21a3cc4d498fa86e4c8cb5c824f16f9040d50837"},
 ]
 
 [package.dependencies]

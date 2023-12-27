@@ -11,6 +11,7 @@ from monistode_binutils_shared import (
     SymbolRelocation,
 )
 from monistode_binutils_shared.bytearray import ByteArray
+from monistode_binutils_shared.location import Location
 
 
 @dataclass
@@ -23,6 +24,22 @@ class PlacedSegment:
     def symbols(self) -> tuple[Symbol, ...]:
         """Get the symbols in the segment."""
         return self.segment.symbols(self.offset)
+
+    def relocations_with_offset(self) -> tuple[SymbolRelocation, ...]:
+        """Get the relocations in the segment with their offsets applied."""
+        return tuple(
+            SymbolRelocation(
+                location=Location(
+                    section=relocation.location.section,
+                    offset=relocation.location.offset + self.offset,
+                ),
+                symbol=relocation.symbol,
+                size=relocation.size,
+                offset=relocation.offset,
+                relative=relocation.relative,
+            )
+            for relocation in self.segment.relocations
+        )
 
     def get_relocation_target(
         self, relocation: SymbolRelocation, symbols: tuple[Symbol, ...]
@@ -55,7 +72,6 @@ class PlacedSegment:
         if data is None:
             data = ByteArray(self.segment.byte_size, self.segment.size)
         for relocation in self.segment.relocations:
-            relocation: SymbolRelocation
             target = self.get_relocation_target(relocation, targets)
             address = self.get_data(
                 data, relocation.location.offset, relocation.offset, relocation.size
